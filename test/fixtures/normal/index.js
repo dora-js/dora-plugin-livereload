@@ -1,1 +1,1 @@
-console.log(1);
+require('./index.css');require('./mod');console.log(2);

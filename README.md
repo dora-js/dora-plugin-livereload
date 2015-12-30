@@ -13,8 +13,12 @@ dora plugin for livereload。
 
 ```bash
 $ npm i dora dora-plugin-livereload -SD
-$ ./node_modules/.bin/dora --plugins livereload
+$ ./node_modules/.bin/dora --plugins atool-build,livereload?ignore='.map$'
 ```
+
+## Param
+
+`ignore` : ignore files to livereload , just pass through the pattern like `.map|.jsx?$`
 
 ## Test
 
