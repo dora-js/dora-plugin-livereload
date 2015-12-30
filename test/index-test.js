@@ -7,6 +7,7 @@ const localIP = require('internal-ip')();
 const port = '12345';
 
 describe('index', function() {
+  this.timeout(50000);
   describe('livereload.js', () => {
     
     const cwd = process.cwd();
