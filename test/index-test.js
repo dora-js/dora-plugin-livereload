@@ -78,7 +78,7 @@ describe('index', function() {
         process.chdir(join(__dirname, './fixtures/normal'));   
         dora({
           port: port + 1,
-          plugins: ['dora-plugin-atool-build', '../../../src/index?ignore=".map$"'],
+          plugins: ['dora-plugin-atool-build', '../../../src/index?{enableAll:true}'],
           cwd: join(__dirname, './fixtures/normal'),
         });
         setTimeout(done, 1000);

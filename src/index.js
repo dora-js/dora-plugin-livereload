@@ -1,9 +1,29 @@
 import 'babel-polyfill';
 import { existsSync, readFileSync } from 'fs';
 import { parse } from 'url';
-import { join } from 'path';
-import { isEqual } from 'lodash';
+import { join, extname } from 'path';
+import isEqual from 'lodash.isequal';
+import assign from 'object-assign';
 import tinylr from 'tiny-lr';
+
+let lrOpts = {};
+
+let ignoreOpts = {
+  enableJs: true,
+  enableCss: true,
+  enableImg: true,
+  enableAll: false,
+};
+const ignorePattern = {
+  enableJs: 'js',
+  enableCss: 'css',
+  enableImg: 'jpg|jpeg|gif|png|bmp',
+};
+let pattern = '';
+let tinylrServer = {};
+let firstRun = 0;
+let preCompilerationAssets = {};
+
 
 function getAssetContent(asset) {
   let content = null;
@@ -18,35 +38,52 @@ function getAssetContent(asset) {
   return content;
 }
 
-let opts = {};
-let tinylrServer = {};
-let firstRun = 0;
-let preCompilerationAssets = {};
+function getPattern(opts) {
+  const patternString = Object.keys(opts).reduce((prev, item) => {
+    if (opts[item]) {
+      prev.push(ignorePattern[item]);
+    }
+
+    return prev;
+  }, []);
+
+  return patternString.join('|');
+}
 
 export default {
   'middleware.before'() {
-    const { log } = this;
-    opts = {
+    const { log, query } = this;
+    if (query && typeof query === 'object') {
+      ignoreOpts = assign(ignoreOpts, query);
+      if (ignoreOpts.enableAll) {
+        pattern = '.*$';
+      } else {
+        pattern = '.(' + getPattern(ignoreOpts) + ')$';
+      }
+    }
+    lrOpts = {
       port: 35729,
       errorListener(err) {
         log.error(err);
       },
     };
-    tinylrServer = tinylr(opts);
-    tinylrServer.listen(opts, () => {
-      log.info(`Listening on ${opts.port}`);
+    tinylrServer = tinylr(lrOpts);
+    tinylrServer.listen(lrOpts.port, () => {
+      log.info(`Listening on ${lrOpts.port}`);
     });
   },
 
   'middleware'() {
-    const { cwd, localIP, query, log } = this;
-    const ignore = query.ignore;
+    const { cwd, localIP, log } = this;
+    let isNeedLiveReload = true;
     let reg;
-    try {
-      reg = new RegExp(ignore, 'i');
-    } catch (err) {
-      log.error('pattern is illegal');
+    if (pattern.length !== 1) {
+      reg = new RegExp(pattern, 'i');
+      log.info(`livereload is watching the pattern of  ${pattern} files`);
+    } else {
+      isNeedLiveReload = false;
     }
+
     const compiler = this.get('compiler');
     if (!compiler) {
       throw new Error('[error] must used together with dora-plugin-atool-build');
@@ -59,16 +96,14 @@ export default {
       }
 
       const assets = stats.compilation.assets;
-      let items = [];
-      if (ignore) {
-        log.info(`livereload will ignore ${query.ignore} files`);
-        items = Object.keys(assets).filter((item) => {
-          return !reg.test(item);
-        });
-      } else {
-        items = Object.keys(assets);
+      if (!isNeedLiveReload) {
+        return;
       }
 
+      let items = [];
+      items = Object.keys(assets).filter((item) => {
+        return reg.test(item) && extname(item) !== '.map';
+      });
       log.info(`final watching items ${items}`);
       if (!firstRun) {
         firstRun ++;
@@ -102,7 +137,7 @@ export default {
       const filePath = join(cwd, fileName);
       const isHTML = /\.html?$/.test(this.url.split('?')[0]);
       if (isHTML && existsSync(filePath)) {
-        const injectScript = `<script src='http://${localIP}:${opts.port}/livereload.js'></script>`;
+        const injectScript = `<script src='http://${localIP}:${lrOpts.port}/livereload.js'></script>`;
         let content = readFileSync(filePath, 'utf-8');
         const docTypeReg = new RegExp('^\s*\<\!DOCTYPE\s*.+\>.*$', 'im');
         const docType = content.match(docTypeReg);
