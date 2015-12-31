@@ -2,6 +2,10 @@
 
 ---
 
+# 0.2.0
+
+- refactor: use ex. ?{enableJs:false} to handle the logic
+
 ## 0.1.2
 
 - fix: timeout on travis-ci
