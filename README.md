@@ -29,7 +29,7 @@ default:
   enableImg:true,
   enableAll:false 
 }
-``
+```
 ## Test
 
 ```bash
