@@ -2,6 +2,10 @@
 
 ---
 
+# 0.2.1
+
+- chore: clear unnecessary log info
+
 # 0.2.0
 
 - refactor: use ex. ?{enableJs:false} to handle the logic
