@@ -69,7 +69,7 @@ export default {
     };
     tinylrServer = tinylr(lrOpts);
     tinylrServer.listen(lrOpts.port, () => {
-      log.info(`Listening on ${lrOpts.port}`);
+      log.info(`listening on ${lrOpts.port}`);
     });
   },
 
@@ -79,7 +79,7 @@ export default {
     let reg;
     if (pattern.length !== 1) {
       reg = new RegExp(pattern, 'i');
-      log.info(`livereload is watching the pattern of  ${pattern} files`);
+      log.debug(`livereload is watching the pattern of ${pattern} files`);
     } else {
       isNeedLiveReload = false;
     }
@@ -104,7 +104,7 @@ export default {
       items = Object.keys(assets).filter((item) => {
         return reg.test(item) && extname(item) !== '.map';
       });
-      log.info(`final watching items ${items}`);
+      log.debug(`final watching items ${items}`);
       if (!firstRun) {
         firstRun ++;
         preCompilerationAssets = items.reduce((prev, item) => {
@@ -129,7 +129,7 @@ export default {
       }, []);
 
       tinylrServer.changed({body: {files: changedItems}});
-      log.warn('livereload changed ' + changedItems.join(', '));
+      log.info('livereload changed ' + changedItems.join(', '));
     });
 
     return function* (next) {
