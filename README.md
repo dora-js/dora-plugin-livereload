@@ -13,7 +13,7 @@ dora plugin for livereload。
 
 ```bash
 $ npm i dora dora-plugin-livereload -SD
-$ ./node_modules/.bin/dora --plugins atool-build,livereload?{enableJs:true,enableCss:true,enableImg:true,enableAll:false}
+$ ./node_modules/.bin/dora --plugins 'atool-build,livereload?enableJs=true&enableCss=true&enableImg=true&enableAll:false'
 ```
 
 ## Param
