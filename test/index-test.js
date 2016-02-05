@@ -89,7 +89,7 @@ describe('index', function() {
       });
       it('file changed', done => {
         const randomColor = (new Date()-0).toString().slice(7);
-        outputFileSync(join(__dirname, './fixtures/normal/mod.js'), `console.log(${randomColor});`);
+        outputFileSync(join(__dirname, './fixtures/normal/mod.js'), `console.log('${randomColor}');`);
         setTimeout(done, 1000)
       });
     });
