@@ -2,7 +2,6 @@ import { existsSync, readFileSync } from 'fs';
 import { parse } from 'url';
 import { join, extname } from 'path';
 import isEqual from 'lodash.isequal';
-import assign from 'object-assign';
 import tinylr from 'tiny-lr';
 
 let lrOpts = {};
@@ -53,7 +52,7 @@ export default {
   'middleware.before'() {
     const { log, query } = this;
     if (query && typeof query === 'object') {
-      ignoreOpts = assign(ignoreOpts, query);
+      ignoreOpts = {...ignoreOpts, ...query};
       if (ignoreOpts.enableAll) {
         pattern = '.*$';
       } else {
