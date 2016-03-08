@@ -19,8 +19,9 @@
     "lint"
   ],
   "dependencies": {
-    "lodash.isequal": "^3.0.4",
-    "tiny-lr": "^0.2.1"
+    "internal-ip": "~1.2.0",
+    "lodash.isequal": "~3.0.4",
+    "tiny-lr": "~0.2.1"
   },
   "devDependencies": {
     "atool-build": "0.6.x",
@@ -36,7 +37,6 @@
     "eslint": "~1.9.0",
     "eslint-config-airbnb": "~1.0.0",
     "fs-extra": "^0.26.3",
-    "internal-ip": "^1.1.0",
     "mocha": "~2.3.4",
     "pre-commit": "~1.1.2",
     "supertest": "^1.1.0"

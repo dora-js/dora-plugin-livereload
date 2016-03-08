@@ -4,6 +4,8 @@ import { join, extname } from 'path';
 import isEqual from 'lodash.isequal';
 import tinylr from 'tiny-lr';
 
+const localIP = require('internal-ip')();
+
 let lrOpts = {};
 
 let ignoreOpts = {
@@ -72,7 +74,7 @@ export default {
   },
 
   'middleware'() {
-    const { cwd, localIP, log } = this;
+    const { cwd, log } = this;
     let isNeedLiveReload = true;
     let reg;
     if (pattern.length !== 1) {
