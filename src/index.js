@@ -1,10 +1,10 @@
-import 'babel-polyfill';
 import { existsSync, readFileSync } from 'fs';
 import { parse } from 'url';
 import { join, extname } from 'path';
 import isEqual from 'lodash.isequal';
-import assign from 'object-assign';
 import tinylr from 'tiny-lr';
+
+const localIP = require('internal-ip')();
 
 let lrOpts = {};
 
@@ -54,7 +54,7 @@ export default {
   'middleware.before'() {
     const { log, query } = this;
     if (query && typeof query === 'object') {
-      ignoreOpts = assign(ignoreOpts, query);
+      ignoreOpts = {...ignoreOpts, ...query};
       if (ignoreOpts.enableAll) {
         pattern = '.*$';
       } else {
@@ -74,7 +74,7 @@ export default {
   },
 
   'middleware'() {
-    const { cwd, localIP, log } = this;
+    const { cwd, log } = this;
     let isNeedLiveReload = true;
     let reg;
     if (pattern.length !== 1) {

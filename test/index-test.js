@@ -15,7 +15,7 @@ describe('index', function() {
       process.chdir(join(__dirname, './fixtures/normal'));   
       dora({
         port,
-        plugins: ['dora-plugin-atool-build', '../../../src/index'],
+        plugins: ['dora-plugin-webpack', '../../../src/index'],
         cwd: join(__dirname, './fixtures/normal'),
       });
       setTimeout(done, 1000);
@@ -78,7 +78,7 @@ describe('index', function() {
         process.chdir(join(__dirname, './fixtures/normal'));   
         dora({
           port: port + 1,
-          plugins: ['dora-plugin-atool-build', '../../../src/index?{enableAll:true}'],
+          plugins: ['dora-plugin-webpack', '../../../src/index?{enableAll:true}'],
           cwd: join(__dirname, './fixtures/normal'),
         });
         setTimeout(done, 1000);
