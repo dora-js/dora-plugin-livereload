@@ -2,6 +2,10 @@
 
 ---
 
+## 0.3.0
+
+- support: dora@0.3
+
 ## 0.2.2
 
 - fix: babel-polyfill should be dependencies 
