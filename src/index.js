@@ -133,9 +133,10 @@ export default {
     });
 
     return function* (next) {
-      const fileName = parse(this.url).pathname;
+      const pathName = parse(this.url).pathname;
+      const fileName = pathName === '/' ? 'index.html' : pathName;
       const filePath = join(cwd, fileName);
-      const isHTML = /\.html?$/.test(this.url.split('?')[0]);
+      const isHTML = /\.html?$/.test(fileName);
       if (isHTML && existsSync(filePath)) {
         const injectScript = `<script src='http://${localIP}:${lrOpts.port}/livereload.js'></script>`;
         let content = readFileSync(filePath, 'utf-8');

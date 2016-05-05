@@ -24,7 +24,7 @@
     "tiny-lr": "~0.2.1"
   },
   "devDependencies": {
-    "atool-build": "0.6.x",
+    "atool-build": "0.7.x",
     "babel-cli": "~6.2.0",
     "babel-core": "~6.1.21",
     "babel-istanbul": "^0.5.9",
@@ -33,7 +33,7 @@
     "babel-preset-stage-0": "~6.1.18",
     "coveralls": "^2.11.6",
     "dora": "0.3.x",
-    "dora-plugin-webpack": "0.5.x",
+    "dora-plugin-webpack": "0.6.x",
     "eslint": "~1.9.0",
     "eslint-config-airbnb": "~1.0.0",
     "fs-extra": "^0.26.3",
