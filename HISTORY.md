@@ -2,6 +2,11 @@
 
 ---
 
+## 0.3.1
+
+- support: koa-middleware-static index, Close #2
+- update: deps
+
 ## 0.3.0
 
 - support: dora@0.3
