@@ -24,6 +24,8 @@ default:
 
 ```javascript
 {
+  compiler: false,
+  injectHost: localIP,
   enableJs:true,
   enableCss:true,
   enableImg:true,

@@ -2,6 +2,10 @@
 
 ---
 
+## 0.4.0
+
+- Enhancement: support compiler and injectHost options
+
 ## 0.3.1
 
 - support: koa-middleware-static index, Close #2
