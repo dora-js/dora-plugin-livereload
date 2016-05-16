@@ -1,5 +1,6 @@
-
-# ref: https://github.com/npm/npm/issues/3059
 publish:
-	npm run build
 	npm publish
+
+publish-sync: publish
+	cnpm sync dora-plugin-livereload
+	tnpm sync dora-plugin-livereload
