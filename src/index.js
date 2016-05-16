@@ -8,12 +8,15 @@ const localIP = require('internal-ip')();
 
 let lrOpts = {};
 
-let ignoreOpts = {
+let pluginOpts = {
+  compiler: false,
+  injectHost: localIP,
   enableJs: true,
   enableCss: true,
   enableImg: true,
   enableAll: false,
 };
+
 const ignorePattern = {
   enableJs: 'js',
   enableCss: 'css',
@@ -40,7 +43,7 @@ function getAssetContent(asset) {
 
 function getPattern(opts) {
   const patternString = Object.keys(opts).reduce((prev, item) => {
-    if (opts[item]) {
+    if (opts[item] && ignorePattern[item]) {
       prev.push(ignorePattern[item]);
     }
 
@@ -54,11 +57,11 @@ export default {
   'middleware.before'() {
     const { log, query } = this;
     if (query && typeof query === 'object') {
-      ignoreOpts = {...ignoreOpts, ...query};
-      if (ignoreOpts.enableAll) {
+      pluginOpts = {...pluginOpts, ...query};
+      if (pluginOpts.enableAll) {
         pattern = '.*$';
       } else {
-        pattern = '.(' + getPattern(ignoreOpts) + ')$';
+        pattern = '.(' + getPattern(pluginOpts) + ')$';
       }
     }
     lrOpts = {
@@ -84,7 +87,7 @@ export default {
       isNeedLiveReload = false;
     }
 
-    const compiler = this.get('compiler');
+    const compiler = pluginOpts.compiler || this.get('compiler');
     if (!compiler) {
       throw new Error('[error] must used together with dora-plugin-atool-build');
     }
@@ -138,7 +141,7 @@ export default {
       const filePath = join(cwd, fileName);
       const isHTML = /\.html?$/.test(fileName);
       if (isHTML && existsSync(filePath)) {
-        const injectScript = `<script src='http://${localIP}:${lrOpts.port}/livereload.js'></script>`;
+        const injectScript = `<script src='http://${pluginOpts.injectHost}:${lrOpts.port}/livereload.js'></script>`;
         let content = readFileSync(filePath, 'utf-8');
         const docTypeReg = new RegExp('^\s*\<\!DOCTYPE\s*.+\>.*$', 'im');
         const docType = content.match(docTypeReg);
