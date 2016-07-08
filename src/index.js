@@ -57,11 +57,11 @@ export default {
   'middleware.before'() {
     const { log, query } = this;
     if (query && typeof query === 'object') {
-      pluginOpts = {...pluginOpts, ...query};
+      pluginOpts = { ...pluginOpts, ...query };
       if (pluginOpts.enableAll) {
         pattern = '.*$';
       } else {
-        pattern = '.(' + getPattern(pluginOpts) + ')$';
+        pattern = `.(${getPattern(pluginOpts)})$`;
       }
     }
     lrOpts = {
@@ -91,7 +91,7 @@ export default {
     if (!compiler) {
       throw new Error('[error] must used together with dora-plugin-atool-build');
     }
-    compiler.plugin('done', function doneHandler(stats) {
+    compiler.plugin('done', stats => {
       if (stats.hasErrors()) {
         log.error(stats.toString());
 
@@ -104,16 +104,16 @@ export default {
       }
 
       let items = [];
-      items = Object.keys(assets).filter((item) => {
-        return reg.test(item) && extname(item) !== '.map';
-      });
+      items = Object.keys(assets).filter((item) => reg.test(item) && extname(item) !== '.map');
       log.debug(`final watching items ${items}`);
+
       if (!firstRun) {
         firstRun ++;
         preCompilerationAssets = items.reduce((prev, item) => {
-          prev[item] = getAssetContent(assets[item]);
+          const preItem = prev;
+          preItem[item] = getAssetContent(assets[item]);
 
-          return prev;
+          return preItem;
         }, {});
 
         return;
@@ -131,11 +131,15 @@ export default {
         return prev;
       }, []);
 
-      tinylrServer.changed({body: {files: changedItems}});
-      log.info('livereload changed ' + changedItems.join(', '));
+      tinylrServer.changed({
+        body: {
+          files: changedItems,
+        },
+      });
+      log.info(`livereload changed ${changedItems.join(', ')}`);
     });
 
-    return function* (next) {
+    return function* mw(next) {
       const pathName = parse(this.url).pathname;
       const fileName = pathName === '/' ? 'index.html' : pathName;
       const filePath = join(cwd, fileName);

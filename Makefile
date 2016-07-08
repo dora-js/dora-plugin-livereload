@@ -1,6 +1,7 @@
 publish:
+	npm run compile
 	npm publish
 
 publish-sync: publish
-	cnpm sync dora-plugin-livereload
-	tnpm sync dora-plugin-livereload
+	cnpm sync
+	tnpm sync
