@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'fs';
+import ConcatSource from 'webpack-core/lib/ConcatSource';
 import { parse } from 'url';
 import { join, extname } from 'path';
 import isEqual from 'lodash.isequal';
@@ -53,6 +54,29 @@ function getPattern(opts) {
   return patternString.join('|');
 }
 
+function getInjectLivereloadContent(host, port) {
+  const src = `http://${host}:${port}/livereload.js`;
+  const injectContent = [
+    '// livereload',
+    '(function() {',
+    '  if (typeof window === "undefined") { return };',
+    '  window.onload = function() {',
+    '    var id = "webpack-livereload-plugin-script";',
+    '    if (document.getElementById(id)) { return; }',
+    '    var el = document.createElement("script");',
+    '    el.id = id;',
+    '    el.async = true;',
+    `    el.src = "${src}";`,
+    '    document.body.appendChild(el);',
+    '    alert(1)',
+    '  }',
+    '}());',
+    '',
+  ].join('\n');
+
+  return injectContent;
+}
+
 export default {
   'middleware.before'() {
     const { log, query } = this;
@@ -91,6 +115,23 @@ export default {
     if (!compiler) {
       throw new Error('[error] must used together with dora-plugin-atool-build');
     }
+    compiler.plugin('compilation', compilation => {
+      compilation.plugin('optimize-chunk-assets', (chunks, callback) => {
+        chunks.forEach(chunk => {
+          chunk.files.filter(file => /.(js)$/.test(file)).forEach(file => {
+            console.log(compilation.assets[file]);
+            const injectContent = getInjectLivereloadContent(pluginOpts.injectHost, lrOpts.port);
+            compilation.assets[file] = new ConcatSource(
+              injectContent,
+              '\n',
+              compilation.assets[file]
+            );
+            console.log(compilation.assets[file]);
+          });
+        });
+        callback();
+      });
+    });
     compiler.plugin('done', stats => {
       if (stats.hasErrors()) {
         log.error(stats.toString());
@@ -145,17 +186,10 @@ export default {
       const filePath = join(cwd, fileName);
       const isHTML = /\.html?$/.test(fileName);
       if (isHTML && existsSync(filePath)) {
-        const injectScript = `<script src='http://${pluginOpts.injectHost}:${lrOpts.port}/livereload.js'></script>`;
+        const injectContent = getInjectLivereloadContent(pluginOpts.injectHost, lrOpts.port);
+        const injectScript = `<script>${injectContent}</script>`;
         let content = readFileSync(filePath, 'utf-8');
-        const docTypeReg = new RegExp('^\s*\<\!DOCTYPE\s*.+\>.*$', 'im');
-        const docType = content.match(docTypeReg);
-        if (docType) {
-          content = content.replace(docTypeReg, docType[0] + injectScript);
-          this.body = content;
-
-          return;
-        }
-        content = injectScript + content;
+        content = content + injectScript;
         this.body = content;
 
         return;
