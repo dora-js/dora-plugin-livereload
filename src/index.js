@@ -78,6 +78,8 @@ function getInjectLivereloadContent(host, port) {
 }
 
 export default {
+  name: 'livereload',
+
   'middleware.before'() {
     const { log, query } = this;
     if (query && typeof query === 'object') {
@@ -98,6 +100,28 @@ export default {
     tinylrServer.listen(lrOpts.port, () => {
       log.info(`listening on ${lrOpts.port}`);
     });
+
+    const compiler = pluginOpts.compiler || this.get('compiler');
+    if (!compiler) {
+      throw new Error('[error] must used together with dora-plugin-webpack');
+    }
+    compiler.plugin('compilation', compilation => {
+      compilation.plugin('optimize-chunk-assets', (chunks, callback) => {
+        chunks.forEach(chunk => {
+          chunk.files.filter(file => /.(js)$/.test(file)).forEach(file => {
+            // console.log(compilation.assets[file]);
+            const injectContent = getInjectLivereloadContent(pluginOpts.injectHost, lrOpts.port);
+            compilation.assets[file] = new ConcatSource(
+              injectContent,
+              '\n',
+              compilation.assets[file]
+            );
+            // console.log(compilation.assets[file]);
+          });
+        });
+        callback();
+      });
+    });
   },
 
   'middleware'() {
@@ -113,25 +137,9 @@ export default {
 
     const compiler = pluginOpts.compiler || this.get('compiler');
     if (!compiler) {
-      throw new Error('[error] must used together with dora-plugin-atool-build');
+      throw new Error('[error] must used together with dora-plugin-webpack');
     }
-    compiler.plugin('compilation', compilation => {
-      compilation.plugin('optimize-chunk-assets', (chunks, callback) => {
-        chunks.forEach(chunk => {
-          chunk.files.filter(file => /.(js)$/.test(file)).forEach(file => {
-            console.log(compilation.assets[file]);
-            const injectContent = getInjectLivereloadContent(pluginOpts.injectHost, lrOpts.port);
-            compilation.assets[file] = new ConcatSource(
-              injectContent,
-              '\n',
-              compilation.assets[file]
-            );
-            console.log(compilation.assets[file]);
-          });
-        });
-        callback();
-      });
-    });
+
     compiler.plugin('done', stats => {
       if (stats.hasErrors()) {
         log.error(stats.toString());

@@ -3,11 +3,11 @@ import { join } from 'path';
 import request from 'supertest';
 import { outputFileSync } from 'fs-extra';
 
-const localIP = require('internal-ip')();
+// const localIP = require('internal-ip')();
 const port = 1234;
 
 describe('index', () => {
-  xdescribe('livereload.js', () => {
+  describe('livereload.js', () => {
     const cwd = process.cwd();
     before(done => {
       process.chdir(join(__dirname, './fixtures/normal'));
@@ -29,7 +29,7 @@ describe('index', () => {
         .end((err, res) => {
           if (err) return done(err);
           if (res.text.indexOf('(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o])') < 0) {
-            const e = new Error('dora-plugin-debug-corner.js is not correct');
+            const e = new Error('dora-plugin-livereload is not correct');
 
             return done(e);
           }
@@ -38,13 +38,13 @@ describe('index', () => {
         });
     });
 
-    xit('GET /index.html is injected the script livereload.js', done => {
+    it('GET /index.html is injected the script livereload.js', done => {
       request(`http://localhost:${port}`)
         .get('/index.html')
         .expect(200)
         .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf(`<script src='http://${localIP}:35729/livereload.js'></script>`) < 0) {
+          if (res.text.indexOf('// livereload') < 0) {
             const e = new Error('livereload.js is not injected');
 
             return done(e);
@@ -54,13 +54,13 @@ describe('index', () => {
         });
     });
 
-    xit('GET /lackdoctype.html is injected the script livereload.js', done => {
+    it('GET /lackdoctype.html is injected the script livereload.js', done => {
       request(`http://localhost:${port}`)
         .get('/lackdoctype.html')
         .expect(200)
         .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf(`<script src='http://${localIP}:35729/livereload.js'></script>`) < 0) {
+          if (res.text.indexOf('// livereload') < 0) {
             const e = new Error('livereload.js is not injected');
 
             return done(e);
@@ -70,13 +70,29 @@ describe('index', () => {
         });
     });
 
-    xit('GET /x.js should not be handled', done => {
+    it('GET /index.js should be handled', done => {
+      request(`http://localhost:${port}`)
+        .get('/index.js')
+        .expect(200)
+        .end((err, res) => {
+          if (err) return done(err);
+          if (res.text.indexOf('// livereload') < 0) {
+            const e = new Error('entry related js files should be handled');
+
+            return done(e);
+          }
+
+          return done();
+        });
+    });
+
+    it('GET /x.js should not be handled', done => {
       request(`http://localhost:${port}`)
         .get('/x.js')
         .expect(200)
         .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf('console.log(1);') < 0) {
+          if (res.text.indexOf('// livereload') > 0) {
             const e = new Error('other types of files should not be handled');
 
             return done(e);
@@ -87,7 +103,7 @@ describe('index', () => {
     });
   });
 
-    // todo
+  // todo
   describe('files are changed', () => {
     const c = process.cwd();
     before(done => {
@@ -96,8 +112,7 @@ describe('index', () => {
         port: port + 1,
         plugins: ['dora-plugin-webpack', '../../../src/index?{enableAll:true}'],
         cwd: join(__dirname, './fixtures/normal'),
-      });
-      setTimeout(done, 1000);
+      }, done);
     });
 
     after(() => {
@@ -109,7 +124,7 @@ describe('index', () => {
         join(__dirname, './fixtures/normal/mod.js'),
         `console.log('${randomColor}');`
       );
-      setTimeout(done, 50000);
+      done();
     });
   });
 });
