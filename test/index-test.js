@@ -124,7 +124,7 @@ describe('index', () => {
         join(__dirname, './fixtures/normal/mod.js'),
         `console.log('${randomColor}');`
       );
-      done();
+      setTimeout(done, 1000);
     });
   });
 });
