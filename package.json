@@ -1,6 +1,6 @@
 {
   "name": "dora-plugin-livereload",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "dora plugin for livereload",
   "repository": {
     "type": "git",

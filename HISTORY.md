@@ -2,6 +2,10 @@
 
 ---
 
+## 0.5.1
+
+- webpack-core should be in dependencies
+
 ## 0.5.0
 
 - use webpack.updateConfig.finally to add webpack plugins, the plugin is used for inject livereload
