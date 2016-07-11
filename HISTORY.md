@@ -2,6 +2,10 @@
 
 ---
 
+## 0.5.0
+
+- use webpack.updateConfig.finally to add webpack plugins, the plugin is used for inject livereload
+
 ## 0.4.0
 
 - Enhancement: support compiler and injectHost options
