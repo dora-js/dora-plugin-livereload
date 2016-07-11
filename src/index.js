@@ -4,9 +4,14 @@ import { join, extname } from 'path';
 import isEqual from 'lodash.isequal';
 import tinylr from 'tiny-lr';
 
+import { getInjectLivereloadContent } from './util';
+import InjectScript from './injectScript';
+
 const localIP = require('internal-ip')();
 
-let lrOpts = {};
+let lrOpts = {
+  port: 35729,
+};
 
 let pluginOpts = {
   compiler: false,
@@ -54,22 +59,16 @@ function getPattern(opts) {
 }
 
 export default {
+  name: 'livereload',
+
   'middleware.before'() {
-    const { log, query } = this;
-    if (query && typeof query === 'object') {
-      pluginOpts = {...pluginOpts, ...query};
-      if (pluginOpts.enableAll) {
-        pattern = '.*$';
-      } else {
-        pattern = '.(' + getPattern(pluginOpts) + ')$';
-      }
-    }
-    lrOpts = {
-      port: 35729,
+    const { log } = this;
+
+    lrOpts = { ...lrOpts, ...{
       errorListener(err) {
         log.error(err);
       },
-    };
+    } };
     tinylrServer = tinylr(lrOpts);
     tinylrServer.listen(lrOpts.port, () => {
       log.info(`listening on ${lrOpts.port}`);
@@ -89,9 +88,10 @@ export default {
 
     const compiler = pluginOpts.compiler || this.get('compiler');
     if (!compiler) {
-      throw new Error('[error] must used together with dora-plugin-atool-build');
+      throw new Error('[error] must used together with dora-plugin-webpack');
     }
-    compiler.plugin('done', function doneHandler(stats) {
+
+    compiler.plugin('done', stats => {
       if (stats.hasErrors()) {
         log.error(stats.toString());
 
@@ -104,16 +104,16 @@ export default {
       }
 
       let items = [];
-      items = Object.keys(assets).filter((item) => {
-        return reg.test(item) && extname(item) !== '.map';
-      });
+      items = Object.keys(assets).filter((item) => reg.test(item) && extname(item) !== '.map');
       log.debug(`final watching items ${items}`);
+
       if (!firstRun) {
         firstRun ++;
         preCompilerationAssets = items.reduce((prev, item) => {
-          prev[item] = getAssetContent(assets[item]);
+          const preItem = prev;
+          preItem[item] = getAssetContent(assets[item]);
 
-          return prev;
+          return preItem;
         }, {});
 
         return;
@@ -131,32 +131,48 @@ export default {
         return prev;
       }, []);
 
-      tinylrServer.changed({body: {files: changedItems}});
-      log.info('livereload changed ' + changedItems.join(', '));
+      tinylrServer.changed({
+        body: {
+          files: changedItems,
+        },
+      });
+      log.info(`livereload changed ${changedItems.join(', ')}`);
     });
 
-    return function* (next) {
+    return function* mw(next) {
       const pathName = parse(this.url).pathname;
       const fileName = pathName === '/' ? 'index.html' : pathName;
       const filePath = join(cwd, fileName);
       const isHTML = /\.html?$/.test(fileName);
       if (isHTML && existsSync(filePath)) {
-        const injectScript = `<script src='http://${pluginOpts.injectHost}:${lrOpts.port}/livereload.js'></script>`;
+        const injectContent = getInjectLivereloadContent(pluginOpts.injectHost, lrOpts.port);
+        const injectScript = `<script>${injectContent}</script>`;
         let content = readFileSync(filePath, 'utf-8');
-        const docTypeReg = new RegExp('^\s*\<\!DOCTYPE\s*.+\>.*$', 'im');
-        const docType = content.match(docTypeReg);
-        if (docType) {
-          content = content.replace(docTypeReg, docType[0] + injectScript);
-          this.body = content;
-
-          return;
-        }
-        content = injectScript + content;
+        content = content + injectScript;
         this.body = content;
 
         return;
       }
       yield next;
     };
+  },
+
+  'webpack.updateConfig.finally'(webpackConfig) {
+    const { query } = this;
+    if (query && typeof query === 'object') {
+      pluginOpts = { ...pluginOpts, ...query };
+      if (pluginOpts.enableAll) {
+        pattern = '.*$';
+      } else {
+        pattern = `.(${getPattern(pluginOpts)})$`;
+      }
+    }
+
+    webpackConfig.plugins.push(new InjectScript({
+      injectHost: pluginOpts.injectHost,
+      port: lrOpts.port,
+    }));
+
+    return webpackConfig;
   },
 };
