@@ -1,13 +1,17 @@
 import { existsSync, readFileSync } from 'fs';
-import ConcatSource from 'webpack-core/lib/ConcatSource';
 import { parse } from 'url';
 import { join, extname } from 'path';
 import isEqual from 'lodash.isequal';
 import tinylr from 'tiny-lr';
 
+import { getInjectLivereloadContent } from './util';
+import InjectScript from './injectScript';
+
 const localIP = require('internal-ip')();
 
-let lrOpts = {};
+let lrOpts = {
+  port: 35729,
+};
 
 let pluginOpts = {
   compiler: false,
@@ -54,73 +58,20 @@ function getPattern(opts) {
   return patternString.join('|');
 }
 
-function getInjectLivereloadContent(host, port) {
-  const src = `http://${host}:${port}/livereload.js`;
-  const injectContent = [
-    '// livereload',
-    '(function() {',
-    '  if (typeof window === "undefined") { return };',
-    '  window.onload = function() {',
-    '    var id = "webpack-livereload-plugin-script";',
-    '    if (document.getElementById(id)) { return; }',
-    '    var el = document.createElement("script");',
-    '    el.id = id;',
-    '    el.async = true;',
-    `    el.src = "${src}";`,
-    '    document.body.appendChild(el);',
-    '    alert(1)',
-    '  }',
-    '}());',
-    '',
-  ].join('\n');
-
-  return injectContent;
-}
-
 export default {
   name: 'livereload',
 
   'middleware.before'() {
-    const { log, query } = this;
-    if (query && typeof query === 'object') {
-      pluginOpts = { ...pluginOpts, ...query };
-      if (pluginOpts.enableAll) {
-        pattern = '.*$';
-      } else {
-        pattern = `.(${getPattern(pluginOpts)})$`;
-      }
-    }
-    lrOpts = {
-      port: 35729,
+    const { log } = this;
+
+    lrOpts = { ...lrOpts, ...{
       errorListener(err) {
         log.error(err);
       },
-    };
+    } };
     tinylrServer = tinylr(lrOpts);
     tinylrServer.listen(lrOpts.port, () => {
       log.info(`listening on ${lrOpts.port}`);
-    });
-
-    const compiler = pluginOpts.compiler || this.get('compiler');
-    if (!compiler) {
-      throw new Error('[error] must used together with dora-plugin-webpack');
-    }
-    compiler.plugin('compilation', compilation => {
-      compilation.plugin('optimize-chunk-assets', (chunks, callback) => {
-        chunks.forEach(chunk => {
-          chunk.files.filter(file => /.(js)$/.test(file)).forEach(file => {
-            // console.log(compilation.assets[file]);
-            const injectContent = getInjectLivereloadContent(pluginOpts.injectHost, lrOpts.port);
-            compilation.assets[file] = new ConcatSource(
-              injectContent,
-              '\n',
-              compilation.assets[file]
-            );
-            // console.log(compilation.assets[file]);
-          });
-        });
-        callback();
-      });
     });
   },
 
@@ -204,5 +155,24 @@ export default {
       }
       yield next;
     };
+  },
+
+  'webpack.updateConfig.finally'(webpackConfig) {
+    const { query } = this;
+    if (query && typeof query === 'object') {
+      pluginOpts = { ...pluginOpts, ...query };
+      if (pluginOpts.enableAll) {
+        pattern = '.*$';
+      } else {
+        pattern = `.(${getPattern(pluginOpts)})$`;
+      }
+    }
+
+    webpackConfig.plugins.push(new InjectScript({
+      injectHost: pluginOpts.injectHost,
+      port: lrOpts.port,
+    }));
+
+    return webpackConfig;
   },
 };
