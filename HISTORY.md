@@ -2,6 +2,10 @@
 
 ---
 
+## 0.5.2
+
+- add babel-runtime and transform-runtime
+
 ## 0.5.1
 
 - webpack-core should be in dependencies
