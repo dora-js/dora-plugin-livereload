@@ -18,7 +18,7 @@
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "dependencies": {
-    "internal-ip": "~1.2.0",
+    "address": "~1.0.0",
     "lodash.isequal": "^4.1.4",
     "tiny-lr": "~0.2.1",
     "webpack-core": "^0.6.8"

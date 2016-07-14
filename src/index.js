@@ -7,7 +7,7 @@ import tinylr from 'tiny-lr';
 import { getInjectLivereloadContent } from './util';
 import InjectScript from './injectScript';
 
-const localIP = require('internal-ip')();
+const localIP = require('address').ip();
 
 let lrOpts = {
   port: 35729,
