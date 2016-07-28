@@ -1,5 +1,5 @@
 {
-  "name": "dora-plugin-livereload",
+  "name": "@ali/dora-plugin-livereload-ice",
   "version": "0.5.2",
   "description": "dora plugin for livereload",
   "repository": {
