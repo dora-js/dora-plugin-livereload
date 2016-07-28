@@ -58,5 +58,8 @@
     "lib",
     "package.json",
     "README.md"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "http://registry.npm.alibaba-inc.com"
+  }
 }
