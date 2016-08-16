@@ -12,8 +12,8 @@ dora plugin for livereload。
 ## Usage
 
 ```bash
-$ npm i dora dora-plugin-livereload -SD
-$ ./node_modules/.bin/dora --plugins 'atool-build,livereload?enableJs=true&enableCss=true&enableImg=true&enableAll:false'
+$ npm i dora dora-plugin-webpack dora-plugin-livereload -SD
+$ ./node_modules/.bin/dora --plugins 'webpack,livereload?enableJs=true&enableCss=true&enableImg=true&enableAll:false'
 ```
 
 ## Param
