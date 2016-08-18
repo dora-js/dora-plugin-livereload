@@ -2,6 +2,10 @@
 
 ---
 
+## 0.5.3
+
+- fix npm2 babel-runtime and transform-runtime issue
+
 ## 0.5.2
 
 - add babel-runtime and transform-runtime
