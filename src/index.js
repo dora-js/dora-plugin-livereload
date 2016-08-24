@@ -167,6 +167,10 @@ export default {
         pattern = `.(${getPattern(pluginOpts)})$`;
       }
     }
+    
+    if('port' in pluginOpts && pluginOpts.port > 0 && pluginOpts.port < 65536) {
+      lrOpts.port = pluginOpts.port;
+    }
 
     webpackConfig.plugins.push(new InjectScript({
       injectHost: pluginOpts.injectHost,
