@@ -29,7 +29,8 @@ default:
   enableJs:true,
   enableCss:true,
   enableImg:true,
-  enableAll:false 
+  enableAll:false,
+  port: customPort, // default port is 35729
 }
 ```
 ## Test

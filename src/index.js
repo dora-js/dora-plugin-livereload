@@ -9,9 +9,7 @@ import InjectScript from './injectScript';
 
 const localIP = require('internal-ip')();
 
-let lrOpts = {
-  port: 35729,
-};
+let lrOpts = { };
 
 let pluginOpts = {
   compiler: false,
@@ -20,6 +18,7 @@ let pluginOpts = {
   enableCss: true,
   enableImg: true,
   enableAll: false,
+  port: 35729,
 };
 
 const ignorePattern = {
@@ -65,6 +64,7 @@ export default {
     const { log } = this;
 
     lrOpts = { ...lrOpts, ...{
+      port: pluginOpts.port,
       errorListener(err) {
         log.error(err);
       },
