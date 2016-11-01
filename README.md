@@ -13,7 +13,7 @@ dora plugin for livereload。
 
 ```bash
 $ npm i dora dora-plugin-webpack dora-plugin-livereload -SD
-$ ./node_modules/.bin/dora --plugins 'webpack,livereload?enableJs=true&enableCss=true&enableImg=true&enableAll:false'
+$ ./node_modules/.bin/dora --plugins 'webpack,livereload?enableJs=true&enableCss=true&enableImg=true&enableAll:false&port=12345'
 ```
 
 ## Param
@@ -30,7 +30,7 @@ default:
   enableCss:true,
   enableImg:true,
   enableAll:false,
-  port: customPort, // default port is 35729
+  port: 35729,
 }
 ```
 ## Test
