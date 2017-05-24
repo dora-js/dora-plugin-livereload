@@ -161,7 +161,7 @@ export default {
     const { query } = this;
     if (query && typeof query === 'object') {
       let port = query.port;
-      port = !isNaN(port) && port <= 65535 ? port : lrOpts.port; console.log(port);
+      port = !isNaN(port) && port <= 65535 ? port : lrOpts.port;
       pluginOpts = { ...pluginOpts, ...query };
       lrOpts = { ...lrOpts, port };
       if (pluginOpts.enableAll) {
