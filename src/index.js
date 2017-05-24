@@ -7,7 +7,7 @@ import tinylr from 'tiny-lr';
 import { getInjectLivereloadContent } from './util';
 import InjectScript from './injectScript';
 
-const localIP = require('internal-ip')();
+const localIP = require('ip').address();
 
 let lrOpts = {
   port: 35729,
@@ -160,7 +160,10 @@ export default {
   'webpack.updateConfig.finally'(webpackConfig) {
     const { query } = this;
     if (query && typeof query === 'object') {
+      let port = query.port;
+      port = !isNaN(port) && port <= 65535 ? port : lrOpts.port;
       pluginOpts = { ...pluginOpts, ...query };
+      lrOpts = { ...lrOpts, port };
       if (pluginOpts.enableAll) {
         pattern = '.*$';
       } else {
