@@ -24,12 +24,13 @@ default:
 
 ```javascript
 {
-  compiler: false,
-  injectHost: localIP,
-  enableJs:true,
-  enableCss:true,
-  enableImg:true,
-  enableAll:false
+  compiler: false, // 开放给 atool-doc 使用，一般开发者请忽略
+  injectHost: localIP, // 指定注入资源文件的 host 名称，诸如 localhost ip 地址 等
+  enableJs:true, // 对 js 开启 livereload
+  enableCss:true, // 对 css 开启 livereload
+  enableImg:true, // 对 image 开启 livereload
+  enableAll:false, // 对所有文件开启 livereload
+  port: 35729 // livereload 端口号
 }
 ```
 ## Test
