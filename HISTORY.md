@@ -2,6 +2,11 @@
 
 ---
 
+## 0.6.0
+
+- Support vpn-ip && custom-port #19
+- Refine Readme
+
 ## 0.5.3
 
 - fix npm2 babel-runtime and transform-runtime issue
